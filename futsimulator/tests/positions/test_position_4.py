@@ -28,7 +28,7 @@ pos = Position(snapshot, side, size, tp, sl)
 
 for k in range(0,7):
     snapshot.update()
-    pos.update_tick(snapshot)
+    pos.update_tick()
 
 print(pos)
 assert(pos.cl_pnl == (10 - 7)* 3.0)

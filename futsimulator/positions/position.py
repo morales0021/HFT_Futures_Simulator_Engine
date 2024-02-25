@@ -32,7 +32,7 @@ class Position:
         else:
             o_price = snapshot.bid
         
-        self.last_snapshot = snapshot
+        self.snapshot = snapshot
 
         # open price
         self.o_price = o_price
@@ -70,22 +70,20 @@ class Position:
 
         # check if close by take profit and stop loss
 
-        self._check_tp(snapshot)
+        self._check_tp()
         print(self.o_pnl)
-        self._check_sl(snapshot)
+        self._check_sl()
 
-    def update_tick(self, snapshot: MarketSnapshot) -> None:
+    def update_tick(self) -> None:
         """
         Updates the status from a position
         """
         # check first take profit and stop loss
-        self._delta_time(snapshot)
-        self._check_tp(snapshot)
-        self._check_sl(snapshot)
+        self._delta_time()
+        self._check_tp()
+        self._check_sl()
         # update open profit and loss if still opened
-        self._op_profit(snapshot)
-        # Update last snapshot
-        self.last_snapshot = snapshot
+        self._op_profit()
 
     def update_tp_sl(self, tp_sl_data: dict) -> None:
         """
@@ -105,89 +103,76 @@ class Position:
         """
         if self.status == StatusOrder.opened:
             if self.side == SideOrder.buy:
-                pnl = (self.last_snapshot.bid - self.o_price)
+                pnl = (self.snapshot.bid - self.o_price)
                 self.cl_pnl = self.com_fun.get_com(pnl, self.o_price)*self.size
             else:
-                pnl =  (self.o_price - self.last_snapshot.ask)
+                pnl =  (self.o_price - self.snapshot.ask)
                 self.cl_pnl = self.com_fun.get_com(pnl, self.o_price)*self.size
 
-    # def _limit_close(self):
-    #     """
-    #     Close the order and computes the closed profit and loss
-    #     It uses the last market snapshot that was provided.
-    #     """
-    #     if self.status == StatusOrder.opened:
-    #         if self.side == SideOrder.buy:
-    #             pnl = (self.last_snapshot.ask - self.o_price)
-    #             self.cl_pnl = self.com_fun.get_com(pnl, self.o_price)*self.size
-    #         else:
-    #             pnl =  (self.o_price - self.last_snapshot.bid)
-    #             self.cl_pnl = self.com_fun.get_com(pnl, self.o_price)*self.size
-
-    def _check_tp(self, snapshot: MarketSnapshot):
+    def _check_tp(self):
         """
         Close an order if the takeprofit is satisfied
         """
 
         if not self.tp or self.status == StatusOrder.closed:
             return
-        elif self.side == SideOrder.buy and self.tp <= snapshot.bid:
+        elif self.side == SideOrder.buy and self.tp <= self.snapshot.bid:
             # Close the position
             self.o_pnl = None
             self.cl_price = self.tp
             self.close_order()
-            self.cl_time = snapshot.time
+            self.cl_time = self.snapshot.time
             self.status = StatusOrder.closed
 
-        elif self.side == SideOrder.sell and self.tp >= snapshot.ask:
+        elif self.side == SideOrder.sell and self.tp >= self.snapshot.ask:
             # Close the position
             self.o_pnl = None
             self.cl_price = self.tp
             self.close_order()
-            self.cl_time = snapshot.time
+            self.cl_time = self.snapshot.time
             self.status = StatusOrder.closed
     
-    def _check_sl(self, snapshot: MarketSnapshot):
+    def _check_sl(self):
         """
         Close an order if the stop loss is satisfied
         """
         if not self.sl or self.status == StatusOrder.closed:
             return
-        elif self.side == SideOrder.buy and self.sl >= snapshot.bid:
+        elif self.side == SideOrder.buy and self.sl >= self.snapshot.bid:
             # Close the position
             self.o_pnl = None
             self.cl_price = self.sl
             self.close_order()
-            self.cl_time = snapshot.time
+            self.cl_time = self.snapshot.time
             self.status = StatusOrder.closed
 
-        elif self.side == SideOrder.sell and self.sl <= snapshot.ask:
+        elif self.side == SideOrder.sell and self.sl <= self.snapshot.ask:
             # Close the position
             self.o_pnl = None
             self.cl_price = self.sl
             self.close_order()
-            self.cl_time = snapshot.time
+            self.cl_time = self.snapshot.time
             self.status = StatusOrder.closed
 
-    def _delta_time(self, snapshot: MarketSnapshot):
+    def _delta_time(self):
         """
         Updates the attribute delta_time in the position
         delta_time provides the live of the current trade
         """
         if self.status == StatusOrder.opened:
-            self.delta_t = snapshot.time - self.o_time
+            self.delta_t = self.snapshot.time - self.o_time
 
-    def _op_profit(self, snapshot: MarketSnapshot):
+    def _op_profit(self):
         """
         Updates the open profit and loss if the order
         is still opened
         """
         if self.status == StatusOrder.opened:
             if self.side == SideOrder.buy:
-                pnl = (snapshot.bid - self.o_price)
+                pnl = (self.snapshot.bid - self.o_price)
                 self.o_pnl = self.com_fun.get_com(pnl,self.o_price)*self.size
             else:
-                pnl = (self.o_price - snapshot.ask)
+                pnl = (self.o_price - self.snapshot.ask)
                 self.o_pnl = self.com_fun.get_com(pnl,self.o_price)*self.size
 
     def __str__(self):
@@ -209,8 +194,8 @@ class Position:
         closed profit: {self.cl_pnl},
         closed price: {self.cl_price}
         ----market----
-        ask: {self.last_snapshot.ask}
-        bid: {self.last_snapshot.bid}
+        ask: {self.snapshot.ask}
+        bid: {self.snapshot.bid}
         """
 
         return textwrap.dedent(cls_info)

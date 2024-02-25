@@ -27,13 +27,15 @@ print(pos.o_pnl)
 
 # Price at ask 12
 snapshot.update()
-pos.update_tick(snapshot)
+pos.update_tick()
 print(pos.o_pnl)
 
 # Price at ask 13
 snapshot.update()
-pos.update_tick(snapshot)
+pos.update_tick()
 print(pos.o_pnl)
 print(size)
 print(pos)
 assert(pos.o_pnl == (12-11)*3.0)
+
+print(pos.snapshot.time)
