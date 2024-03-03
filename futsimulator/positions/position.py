@@ -16,7 +16,9 @@ class Position:
 
     def __init__(
         self, snapshot: MarketSnapshot, side: SideOrder, size: float,
-        tp: float  = None, sl: float = None, commission_cfg: dict = {}):
+        tp: float  = None, sl: float = None, commission_cfg: dict = {},
+        id_order: int = 0, o_price: float = None, o_time: float|int = None,
+        delta_t: float | int= 0):
         """
         A position is opened at the moment that we instantiate such position
         """
@@ -27,17 +29,22 @@ class Position:
         """
         Creates an instance for opening a new position
         """
-        if side == SideOrder.buy:
-            o_price = snapshot.ask
-        else:
-            o_price = snapshot.bid
-        
-        self.snapshot = snapshot
-
         # open price
-        self.o_price = o_price
+        if not o_price:
+            if side == SideOrder.buy:
+                self.o_price = snapshot.ask
+            else:
+                self.o_price = snapshot.bid
+        else:
+            self.o_price = o_price
+
         # open time
-        self.o_time = snapshot.time
+        if not o_time:
+            self.o_time = snapshot.time
+        else:
+            self.o_time = o_time
+
+        self.snapshot = snapshot
         # side order (buy or sell)
         self.side = side
         # the symbol
@@ -65,13 +72,16 @@ class Position:
         # close time
         self.cl_time = None
 
-        # the delta time computes the time of the order since its inception
+        # the delta time computes the time of the order lived
+        # from its inception until it was closed
         self.delta_t = 0
+
+        # id open
+        self.id_order = id_order
 
         # check if close by take profit and stop loss
 
         self._check_tp()
-        print(self.o_pnl)
         self._check_sl()
 
     def update_tick(self) -> None:
@@ -105,9 +115,16 @@ class Position:
             if self.side == SideOrder.buy:
                 pnl = (self.snapshot.bid - self.o_price)
                 self.cl_pnl = self.com_fun.get_com(pnl, self.o_price)*self.size
+                self.cl_price = self.snapshot.bid
+                self.o_pnl = float(0.0)
+            
             else:
                 pnl =  (self.o_price - self.snapshot.ask)
                 self.cl_pnl = self.com_fun.get_com(pnl, self.o_price)*self.size
+                self.cl_price = self.snapshot.ask
+                self.o_pnl = float(0.0)
+
+            self.status = StatusOrder.closed
 
     def _check_tp(self):
         """
@@ -184,6 +201,7 @@ class Position:
         order status: {self.status},
         position size: {self.size},
         time alive: {self.delta_t}
+        order id: {self.id_order}
         ----open-----
         open price: {self.o_price},
         open time: {self.o_time},
