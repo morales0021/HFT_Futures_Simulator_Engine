@@ -1,6 +1,7 @@
 from collections import deque, defaultdict
 from futsimulator.positions.position import StatusOrder, SideOrder, Position
 from futsimulator.stats.stats import statsPositions
+from futsimulator.positions.orders import LimitStopOrder
 import pdb
 
 OPP_ORDER = {SideOrder.buy:SideOrder.sell, SideOrder.sell:SideOrder.buy}
@@ -14,6 +15,8 @@ class PositionManager():
         ):
 
         self.open_pos = deque()
+        self.limit_ords = deque()
+        self.stop_ords = deque()
         self.cl_pos = defaultdict(list)
         self.max_b_size = max_b_size
         self.max_s_size = max_s_size
@@ -27,7 +30,11 @@ class PositionManager():
         or take profit has been reached. It that is the case,
         then an open position will be moved to a closed position.
         """
-        #pdb.set_trace()
+        # Check if any limit orders needs to be executed
+        self.check_limit_ords()
+        # Check if any stop order needs to be executed
+        self.check_stop_ords()
+
         open_pos_ = deque()
         while self.open_pos:
             pos = self.open_pos.popleft()
@@ -39,7 +46,56 @@ class PositionManager():
 
         self.open_pos = open_pos_
 
-    def send_order(self, side: str, size: float,
+    def check_limit_ords(self):
+        """
+        Executes limit orders in the queue of limit orders
+        when they satisfy their conditions
+        """
+
+        limit_ords_ = deque()
+        while self.limit_ords:
+            lo = self.limit_ords.popleft()
+            if lo.side == SideOrder.buy:
+                if self.snapshot.ask <= lo.price:
+                    self.send_market_order(lo.side, lo.size, lo.tp, lo.sl)
+                else:
+                    limit_ords_.append(lo)
+            elif lo.side == SideOrder.sell:
+                if self.snapshot.bid >= lo.price:
+                    self.send_market_order(lo.side, lo.size, lo.tp, lo.sl)
+                else:
+                    limit_ords_.append(lo)
+        self.limit_ords = limit_ords_
+
+    def check_stop_ords(self):
+        """
+        Executes stop orders in the queue of stop orders
+        when they satisfy their conditions.
+        """
+        stop_ords_ = deque()
+        while self.stop_ords:
+            so = self.stop_ords.popleft()
+            if so.side == SideOrder.buy:
+                if self.snapshot.ask >= so.price:
+                    self.send_market_order(so.side, so.size, so.tp, so.sl)
+                else:
+                    stop_ords_.append(so)
+            elif so.side == SideOrder.sell:
+                if self.snapshot.bid <= so.price:
+                    self.send_market_order(so.side, so.size, so.tp, so.sl)
+                else:
+                    stop_ords_.append(so)
+        self.stop_ords = stop_ords_
+
+    def send_limit_order(self, price, side, size, tp, sl):
+        lo = LimitStopOrder(price, side, size, tp, sl)
+        self.limit_ords.append(lo)
+
+    def send_stop_order(self, price, side, size, tp, sl):
+        so = LimitStopOrder(price, side, size, tp, sl)
+        self.stop_ords.append(so)
+
+    def send_market_order(self, side: str, size: float,
                    tp: float = None, sl: float = None):
         self.update()
         if size <= 0:
