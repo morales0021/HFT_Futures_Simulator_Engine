@@ -46,12 +46,58 @@ class PositionManager():
 
         self.open_pos = open_pos_
 
+    def delete_ls_order(self, id_order):
+        """
+        Removes a stop or limit order from the list of 
+        orders that are in the queue
+        """
+        limit_ords_ = deque()
+        while self.limit_ords:
+            order = self.limit_ords.pop()
+            if order.id_counter != id_order:
+                limit_ords_.append(order)
+        self.limit_ords = limit_ords_
+        
+        stop_ords_ = deque()
+        while self.stop_ords:
+            order = self.stop_ords.pop()
+            if order.id_counter != id_order:
+                stop_ords_.append(order)
+        self.stop_ords = stop_ords_
+
+    def modify_ls_order(self, id_order, tp = None, sl = None):
+        """
+        Updates a stop or limit order with its take profit
+        or stoploss
+        """
+        limit_ords_ = deque()
+        while self.limit_ords:
+            order = self.limit_ords.pop()
+            if order.id_counter == id_order:
+                if tp:
+                    order.tp = tp
+                if sl:
+                    order.sl = sl
+            limit_ords_.append(order)
+
+        self.limit_ords = limit_ords_
+        
+        stop_ords_ = deque()
+        while self.stop_ords:
+            order = self.stop_ords.pop()
+            if order.id_counter == id_order:
+                if tp:
+                    order.tp = tp
+                if sl:
+                    order.sl = sl
+            stop_ords_.append(order)
+        self.stop_ords = stop_ords_
+
     def check_limit_ords(self):
         """
         Executes limit orders in the queue of limit orders
         when they satisfy their conditions
         """
-
         limit_ords_ = deque()
         while self.limit_ords:
             lo = self.limit_ords.popleft()
@@ -88,15 +134,27 @@ class PositionManager():
         self.stop_ords = stop_ords_
 
     def send_limit_order(self, price, side, size, tp, sl):
-        lo = LimitStopOrder(price, side, size, tp, sl)
+        """
+        Sends a limit order
+        """
+        
+        lo = LimitStopOrder(price, side, size, tp, sl, self.id_counter)
         self.limit_ords.append(lo)
+        self.id_counter += 1
 
     def send_stop_order(self, price, side, size, tp, sl):
-        so = LimitStopOrder(price, side, size, tp, sl)
+        """
+        Sends a stop order
+        """
+        so = LimitStopOrder(price, side, size, tp, sl, self.id_counter)
         self.stop_ords.append(so)
+        self.id_counter += 1
 
     def send_market_order(self, side: str, size: float,
                    tp: float = None, sl: float = None):
+        """
+        Send a market order
+        """
         self.update()
         if size <= 0:
             return
@@ -193,7 +251,7 @@ class PositionManager():
             opp_orders.append((side,size))
         for op_ord in opp_orders:
             side, size = op_ord
-            self.send_order(side, size)
+            self.send_market_order(side, size)
 
     def get_infos(self):
         """
@@ -202,11 +260,12 @@ class PositionManager():
         """
         info_open = self._trads_info_open()
         info_close = self._trads_info_close()
-
+        info_limit_stops = self._trads_info_limit_stop()
         infos = {
             "open_orders":vars(info_open),
             "closed_orders": info_close
             }
+        infos.update(info_limit_stops)
         
         return infos
 
@@ -230,4 +289,19 @@ class PositionManager():
         for k_id, pos in self.cl_pos.items():
             b_s = statsPositions.c_summarize(pos)
             data[k_id] = vars(b_s)
+        return data
+    
+    def _trads_info_limit_stop(self):
+        """
+        Provides information about the stop orders
+        and limit orders that are opened.
+        """
+        data = {
+            "stop_orders":[],
+            "limit_orders":[]
+            }
+        for pos in self.stop_ords:
+            data["stop_orders"].append(vars(pos))
+        for pos in self.limit_ords:
+            data["limit_orders"].append(vars(pos))
         return data
