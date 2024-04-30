@@ -65,7 +65,10 @@ class PositionManager():
                 stop_ords_.append(order)
         self.stop_ords = stop_ords_
 
-    def modify_ls_order(self, id_order, tp = None, sl = None):
+    def modify_ls_order(
+            self, id_order, price = None,
+            size = None, tp = None, sl = None
+            ):
         """
         Updates a stop or limit order with its take profit
         or stoploss
@@ -78,6 +81,11 @@ class PositionManager():
                     order.tp = tp
                 if sl:
                     order.sl = sl
+                if price:
+                    order.price = price
+                if size:
+                    order.size = size
+
             limit_ords_.append(order)
 
         self.limit_ords = limit_ords_
@@ -150,8 +158,10 @@ class PositionManager():
         self.stop_ords.append(so)
         self.id_counter += 1
 
-    def send_market_order(self, side: str, size: float,
-                   tp: float = None, sl: float = None):
+    def send_market_order(
+            self, side: str, size: float,
+            tp: float = None, sl: float = None
+        ):
         """
         Send a market order
         """
@@ -252,6 +262,14 @@ class PositionManager():
         for op_ord in opp_orders:
             side, size = op_ord
             self.send_market_order(side, size)
+
+    def cancel_all(self):
+        """
+        Cancels all the limit or stop orders
+        """
+        self.stop_ords = deque()
+        self.limit_ords = deque()
+
 
     def get_infos(self):
         """

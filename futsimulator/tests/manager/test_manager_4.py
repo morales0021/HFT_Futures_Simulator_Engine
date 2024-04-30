@@ -92,28 +92,34 @@ ps.send_stop_order(price, side, size, tp, sl)
 result = ps.get_infos()
 pprint.pprint(result)
 
+print('\n')
 ps.send_limit_order(price, side, size, tp, sl)
 result = ps.get_infos()
 pprint.pprint(result)
 
+print('\n')
 ps.update()
 result = ps.get_infos()
 pprint.pprint(result)
 
+print('\n')
 ps.modify_ls_order(id_order = 5, tp = 50, sl = 1)
 result = ps.get_infos()
 pprint.pprint(result)
 
+print('\n')
 #----------------------------------------
 ps.send_stop_order(price, side, size, tp, sl)
 result = ps.get_infos()
 pprint.pprint(result)
 
 
+print('\n')
 ps.modify_ls_order(id_order = 7, tp = 10, sl = 8)
 result = ps.get_infos()
 pprint.pprint(result)
 
+print('\n')
 ps.delete_ls_order(id_order=7)
 ps.delete_ls_order(id_order=5)
 result = ps.get_infos()

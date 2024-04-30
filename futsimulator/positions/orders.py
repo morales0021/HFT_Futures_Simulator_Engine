@@ -1,6 +1,9 @@
 class LimitStopOrder:
 
-    def __init__(self, price, side, size, tp=None, sl=None, id_counter = None):
+    def __init__(
+            self, price, side, size,
+            tp=None, sl=None, id_counter = None
+        ):
 
         self.price = price
         self.size = size
