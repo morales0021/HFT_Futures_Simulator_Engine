@@ -74,4 +74,4 @@ result = ps.get_infos()
 pprint.pprint(result)
 # Profit is
 # (12-11)*5 + (12-12)*2 = 5
-# (13-12)*3 = 2
+# (13-12)*3 = 3

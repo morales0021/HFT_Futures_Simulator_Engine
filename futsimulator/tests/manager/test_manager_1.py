@@ -55,6 +55,7 @@ ps.send_market_order(side, size, tp, sl)
 assert(len(ps.open_pos) == 1)
 
 snapshot.update()
+# 11,10 -> 12,11
 
 size = 5
 ps.send_market_order(side, size, tp, sl)
@@ -64,6 +65,10 @@ result = ps.get_infos()
 pprint.pprint(result)
 
 snapshot.update()
+# 12,11 -> 13,12
+print("Snapshot update was called but we dont called manager update")
+result = ps.get_infos()
+pprint.pprint(result)
 print("Total after liquidation")
 ps.liquidate()
 result = ps.get_infos()

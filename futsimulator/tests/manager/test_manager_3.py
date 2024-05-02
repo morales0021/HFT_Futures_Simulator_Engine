@@ -27,7 +27,7 @@ tp = 7
 sl = 14
 ps.send_market_order(side, size, tp, sl)
 
-# Update tick to ask (12,13) and bid (11,12)
+# Update tick two times -> 11/12 -> 12/13
 for k in range(0,2):
     snapshot.update() # increment the tick index
     ps.update() # update the positions with the new tick

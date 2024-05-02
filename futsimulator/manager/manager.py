@@ -100,6 +100,7 @@ class PositionManager():
                     order.sl = sl
             stop_ords_.append(order)
         self.stop_ords = stop_ords_
+        self.update()
 
     def check_limit_ords(self):
         """
@@ -149,6 +150,7 @@ class PositionManager():
         lo = LimitStopOrder(price, side, size, tp, sl, self.id_counter)
         self.limit_ords.append(lo)
         self.id_counter += 1
+        self.update()
 
     def send_stop_order(self, price, side, size, tp, sl):
         """
@@ -157,11 +159,12 @@ class PositionManager():
         so = LimitStopOrder(price, side, size, tp, sl, self.id_counter)
         self.stop_ords.append(so)
         self.id_counter += 1
+        self.update()
 
     def send_market_order(
             self, side: str, size: float,
             tp: float = None, sl: float = None
-        ):
+        ) -> None:
         """
         Send a market order
         """
@@ -179,7 +182,7 @@ class PositionManager():
 
             pos = self.open_pos.popleft()
 
-            if size ==0 or pos.side == side:
+            if size ==0 or pos.side == side: # why size == 0 ? can we remove such condition ? 
                 """
                 If order is the same side, then just append
                 a new one from the same side
@@ -250,7 +253,7 @@ class PositionManager():
         self.update()
         
 
-    def liquidate(self):
+    def liquidate(self) -> None:
         """
         Liquidates all the opened orders
         """
