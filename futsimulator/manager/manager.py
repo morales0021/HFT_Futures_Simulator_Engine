@@ -53,17 +53,37 @@ class PositionManager():
         """
         limit_ords_ = deque()
         while self.limit_ords:
-            order = self.limit_ords.pop()
+            order = self.limit_ords.popleft()
             if order.id_counter != id_order:
                 limit_ords_.append(order)
         self.limit_ords = limit_ords_
         
         stop_ords_ = deque()
         while self.stop_ords:
-            order = self.stop_ords.pop()
+            order = self.stop_ords.popleft()
             if order.id_counter != id_order:
                 stop_ords_.append(order)
         self.stop_ords = stop_ords_
+
+    def modify_market_order(
+            self, id_order, tp = None, sl = None
+            ):
+        """
+        Updates a market order with its take profit
+        or stop loss
+        """
+        open_pos_ = deque()
+        while self.open_pos:
+            order = self.open_pos.popleft()
+            if order.id_counter == id_order:
+                if tp:
+                    order.tp = tp
+                if sl:
+                    order.sl = sl
+
+            open_pos_.append(order)
+
+        self.open_pos = open_pos_
 
     def modify_ls_order(
             self, id_order, price = None,
@@ -75,7 +95,7 @@ class PositionManager():
         """
         limit_ords_ = deque()
         while self.limit_ords:
-            order = self.limit_ords.pop()
+            order = self.limit_ords.popleft()
             if order.id_counter == id_order:
                 if tp:
                     order.tp = tp
@@ -92,7 +112,7 @@ class PositionManager():
         
         stop_ords_ = deque()
         while self.stop_ords:
-            order = self.stop_ords.pop()
+            order = self.stop_ords.popleft()
             if order.id_counter == id_order:
                 if tp:
                     order.tp = tp

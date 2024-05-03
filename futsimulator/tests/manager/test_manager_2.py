@@ -1,7 +1,7 @@
 from futsimulator.manager.manager import PositionManager
 from futsimulator.market.snapshots import MarketSnapshot
 from futsimulator.positions.position import SideOrder
-import pprint
+import pprint, pdb
 
 ask_arr = [11,12,13,14,15,16,17,18,19]
 bid_arr = [10,11,12,13,14,15,16,17,18]
@@ -48,7 +48,7 @@ pprint.pprint(result)
 print("\n")
 for k in range(0,7):
     side = SideOrder.sell
-    size = 1
+    size = 2
     tp = 7
     sl = 45
     ps.send_market_order(side, size, tp, sl)
@@ -58,6 +58,8 @@ for k in range(0,7):
 result = ps.get_infos()
 pprint.pprint(result)
 print('\n')
+
+pdb.set_trace()
 
 # Update tick to ask 14 and bid 13
 snapshot.update()

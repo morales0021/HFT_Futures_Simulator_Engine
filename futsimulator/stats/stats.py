@@ -23,6 +23,10 @@ class statPos():
         self.av_cl_price = float(0.0)
         # position side
         self.side = None
+        # takeprofit 
+        self.takeprofit = []
+        # stoploss
+        self.stoploss = []
 
 class statsPositions():
     
@@ -59,7 +63,19 @@ class statsPositions():
             b_s.av_o_price +=  pos.o_price*pos.size
             # add average delta time
             b_s.delta_t += pos.delta_t*pos.size
-        
+
+            if pos.tp:
+                b_s.takeprofit.append({
+                    "id_order": pos.id_order,
+                    "tp":pos.tp,
+                    "size":pos.size})
+
+            if pos.sl:
+                b_s.stoploss.append({
+                    "id_order": pos.id_order,
+                    "sl":pos.sl,
+                    "size":pos.size})
+               
         # compute average delta time
         b_s.delta_t /= b_s.total_size if b_s.total_size else 1.0
 
