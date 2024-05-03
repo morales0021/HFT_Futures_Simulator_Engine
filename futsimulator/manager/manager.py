@@ -75,7 +75,7 @@ class PositionManager():
         open_pos_ = deque()
         while self.open_pos:
             order = self.open_pos.popleft()
-            if order.id_counter == id_order:
+            if order.id_order == id_order:
                 if tp:
                     order.tp = tp
                 if sl:
@@ -84,6 +84,7 @@ class PositionManager():
             open_pos_.append(order)
 
         self.open_pos = open_pos_
+        self.update()
 
     def modify_ls_order(
             self, id_order, price = None,
