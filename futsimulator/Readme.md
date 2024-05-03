@@ -161,9 +161,16 @@ Modifies a limit or stop order :
 ```
 ps.modify_ls_order(id_order, price, size, tp, sl)
 ```
-Is required to precsie the order if of the limit/stop order. If such order id is not correct or it 
+Is required to precise the order id of the limit/stop order. If such order id is not correct or it 
 doesn't exists as a pending order, then it will be ignored. This method doesn't return any value.
 When you modify an order, then the manager updates automatically, if the take profit or stop loss are inside the price (best bid or best ask), then the order will be exercised.
+
+**Modify market order**
+Modifies the stoploss or takeprofit from a market order :
+```
+ps.modify_market_order(id_order, tp, sl)
+```
+Is required to precise the order if of the market order. If such order id is not correct or it doesn't exists, then it will be ignored. The method doesn't return any value. When you modify an order, then the manager updates automatically, if the take profit or stop loss are inside the price (best bid or best ask), then the order will be closed.
 
 **Delete a limit/stop order**
 
