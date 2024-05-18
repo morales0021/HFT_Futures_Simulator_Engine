@@ -25,7 +25,7 @@ class TBBO:
         self.time = self.ts
         self.datetime = datetime.utcfromtimestamp(self.ts)
         self.side = dict_d["side"]
-        self.price = dict_d["price"]
+        self.price = float(dict_d["price"]) / self.decimal
         self.size = dict_d["size"]
         self.ask = float(dict_d["levels"][0]["ask_px"]) / self.decimal
         self.bid = float(dict_d["levels"][0]["bid_px"]) / self.decimal

@@ -153,7 +153,7 @@ ps.send_limit_order(price, side, size, tp, sl)
 ps.send_stop_order(price, side, size, tp, sl)
 
 ```
-When you send a limit/stop order, then the manager updates automatically (similar when sending a market order).
+When you send a limit/stop order, then the manager updates automatically and verifies if such order should be already executed or not (similar when sending a market order).
 
 **Modify limit/stop order**
 

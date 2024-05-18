@@ -59,8 +59,6 @@ result = ps.get_infos()
 pprint.pprint(result)
 print('\n')
 
-pdb.set_trace()
-
 # Update tick to ask 14 and bid 13
 snapshot.update()
 ps.update()

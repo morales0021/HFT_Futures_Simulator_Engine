@@ -3,6 +3,7 @@ from futsimulator.format.databento import TBBO
 from futsimulator.interfaces.redislist import RedisList
 from futsimulator.market.snapshots import MarketSnapshot
 from futsimulator.positions.position import SideOrder
+import pdb
 
 class TBBOSnapshot(MarketSnapshot):
 
@@ -25,12 +26,13 @@ class TBBOSnapshot(MarketSnapshot):
             raise AttributeError("Attribute not found in TBBO Class")
 
     def update_queue(self, limit_order):
-
+        # if self.idx == 46:
+        #     pdb.set_trace()
         if not limit_order.queue:
             if limit_order.side == SideOrder.buy and self.bid == limit_order.price:
-                limit_order.queue = self.bid_sz_0
+                limit_order.queue = self.bid_sz_0 + limit_order.size
             elif limit_order.side == SideOrder.sell and self.ask == limit_order.price:
-                limit_order.queue = self.ask_sz_0
+                limit_order.queue = self.ask_sz_0 + limit_order.size
             else:
                 return
         else:
@@ -56,3 +58,20 @@ class TBBOSnapshot(MarketSnapshot):
             return True
         else:
             return False
+
+    def __str__(self):
+
+        cls_info = f"""
+        bid: {self.bid},
+        ask: {self.ask},
+        time: {self.time},
+        datetime: {self.datetime},
+        side: {self.side},
+        last: {self.price}
+        bid_sz_0: {self.bid_sz_0},
+        ask_sz_0: {self.ask_sz_0},
+        symbol: {self.symbol},
+        idx: {self.idx}
+        """
+
+        return textwrap.dedent(cls_info)

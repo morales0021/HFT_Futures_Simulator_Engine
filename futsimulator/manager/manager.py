@@ -131,13 +131,18 @@ class PositionManager():
         limit_ords_ = deque()
         while self.limit_ords:
             lo = self.limit_ords.popleft()
+            method_queue = getattr(self.snapshot, "exec_order_by_queue", None)
             if lo.side == SideOrder.buy:
-                if self.snapshot.ask <= lo.price:
+                if method_queue and self.snapshot.exec_order_by_queue(lo):
+                    self.send_market_order(lo.side, lo.size, lo.tp, lo.sl)
+                elif self.snapshot.ask <= lo.price:
                     self.send_market_order(lo.side, lo.size, lo.tp, lo.sl)
                 else:
                     limit_ords_.append(lo)
             elif lo.side == SideOrder.sell:
-                if self.snapshot.bid >= lo.price:
+                if method_queue and self.snapshot.exec_order_by_queue(lo):
+                    self.send_market_order(lo.side, lo.size, lo.tp, lo.sl)
+                elif self.snapshot.bid >= lo.price:
                     self.send_market_order(lo.side, lo.size, lo.tp, lo.sl)
                 else:
                     limit_ords_.append(lo)
@@ -163,7 +168,7 @@ class PositionManager():
                     stop_ords_.append(so)
         self.stop_ords = stop_ords_
 
-    def send_limit_order(self, price, side, size, tp, sl):
+    def send_limit_order(self, price, side, size, tp = None, sl = None):
         """
         Sends a limit order
         """
@@ -173,7 +178,7 @@ class PositionManager():
         self.id_counter += 1
         self.update()
 
-    def send_stop_order(self, price, side, size, tp, sl):
+    def send_stop_order(self, price, side, size, tp = None, sl = None):
         """
         Sends a stop order
         """
