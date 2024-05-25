@@ -7,17 +7,34 @@ import pdb
 
 class TBBOSnapshot(MarketSnapshot):
 
-    def __init__(self, host, port, list_name, decimal):
+    def __init__(self, host, port, list_name, decimal, indicators = {}):
+        """
+        Reads a list from redis containing price data having a 
+        databento format and reformat its information as
+        attributes.
+        """
 
         self.rl = RedisList(host, port ,list_name)
         self.decimal = decimal
-        self.indicators = None
+        self.indicators = indicators
         self.update()
 
     def update(self):
+        """
+        Generates the attributes by by reading the price information from
+        redis. 
+        """
         self.snap = TBBO(self.rl.read(), self.decimal)
         self.idx = self.rl.idx
-    
+
+        """
+        Updates all the indicators that were integrated into the snapshot
+        instance.
+        """
+        if self.indicators:
+            for key, ind in self.indicators.items():
+                ind.update(self)
+
     def __getattr__(self, attr):
 
         try:
@@ -26,8 +43,10 @@ class TBBOSnapshot(MarketSnapshot):
             raise AttributeError("Attribute not found in TBBO Class")
 
     def update_queue(self, limit_order):
-        # if self.idx == 46:
-        #     pdb.set_trace()
+        """
+        Updates the queue of a limit order by following a mecanic
+        as precised by the Sierra Chart Software.
+        """
         if not limit_order.queue:
             if limit_order.side == SideOrder.buy and self.bid == limit_order.price:
                 limit_order.queue = self.bid_sz_0 + limit_order.size
@@ -67,6 +86,7 @@ class TBBOSnapshot(MarketSnapshot):
         time: {self.time},
         datetime: {self.datetime},
         side: {self.side},
+        size: {self.size},
         last: {self.price}
         bid_sz_0: {self.bid_sz_0},
         ask_sz_0: {self.ask_sz_0},
