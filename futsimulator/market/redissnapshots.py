@@ -21,7 +21,7 @@ class TBBOSnapshot(MarketSnapshot):
         end_time, in addition, list_name, idx_start and max_idx will be overrided.
         """
         if idx_date_day:
-            idx_start, max_idx = idx_date_day.get_indexes(start_time, end_time)
+            idx_start, max_idx, list_name, _ = idx_date_day.get_indexes(start_time, end_time)
         self.rl = RedisList(host, port, list_name, idx = idx_start, max_idx = max_idx)
         self.decimal = decimal
         self.indicators = indicators
@@ -55,6 +55,7 @@ class TBBOSnapshot(MarketSnapshot):
         Updates the queue of a limit order by following a mecanic
         as precised by the Sierra Chart Software.
         """
+        #pdb.set_trace()
         if not limit_order.queue:
             if limit_order.side == SideOrder.buy and self.bid == limit_order.price:
                 limit_order.queue = self.bid_sz_0 + limit_order.size
@@ -80,8 +81,9 @@ class TBBOSnapshot(MarketSnapshot):
         Checks if a limit order should be executed or not based on a 
         queuing system.
         """
+        #pdb.set_trace()
         self.update_queue(limit_order)
-        if limit_order.queue < 0:
+        if limit_order.queue and limit_order.queue < 0:
             return True
         else:
             return False

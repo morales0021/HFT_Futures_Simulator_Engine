@@ -130,22 +130,32 @@ class PositionManager():
         """
         limit_ords_ = deque()
         while self.limit_ords:
+
             lo = self.limit_ords.popleft()
             method_queue = getattr(self.snapshot, "exec_order_by_queue", None)
+            #pdb.set_trace()
             if lo.side == SideOrder.buy:
+            
                 if method_queue and self.snapshot.exec_order_by_queue(lo):
                     self.send_market_order(lo.side, lo.size, lo.tp, lo.sl)
+                
                 elif self.snapshot.ask <= lo.price:
                     self.send_market_order(lo.side, lo.size, lo.tp, lo.sl)
+                
                 else:
                     limit_ords_.append(lo)
+            
             elif lo.side == SideOrder.sell:
+                
                 if method_queue and self.snapshot.exec_order_by_queue(lo):
                     self.send_market_order(lo.side, lo.size, lo.tp, lo.sl)
+                
                 elif self.snapshot.bid >= lo.price:
                     self.send_market_order(lo.side, lo.size, lo.tp, lo.sl)
+                
                 else:
                     limit_ords_.append(lo)
+        
         self.limit_ords = limit_ords_
 
     def check_stop_ords(self):
