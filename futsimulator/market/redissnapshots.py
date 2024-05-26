@@ -1,20 +1,28 @@
 import textwrap
+from datetime import datetime
 from futsimulator.format.databento import TBBO
 from futsimulator.interfaces.redislist import RedisList
 from futsimulator.market.snapshots import MarketSnapshot
 from futsimulator.positions.position import SideOrder
+import math
 import pdb
 
 class TBBOSnapshot(MarketSnapshot):
 
-    def __init__(self, host, port, list_name, decimal, indicators = {}):
+    def __init__(self, host, port, list_name: str = None,
+                 decimal: int = 1, indicators = {}, idx_start: int = -1,
+                 max_idx: int|float = math.inf, idx_date_day = None,
+                 start_time: datetime = None, end_time: datetime = None):
         """
         Reads a list from redis containing price data having a 
         databento format and reformat its information as
         attributes.
+        Note that if idx_date_day is provided, then is required start_time and
+        end_time, in addition, list_name, idx_start and max_idx will be overrided.
         """
-
-        self.rl = RedisList(host, port ,list_name)
+        if idx_date_day:
+            idx_start, max_idx = idx_date_day.get_indexes(start_time, end_time)
+        self.rl = RedisList(host, port, list_name, idx = idx_start, max_idx = max_idx)
         self.decimal = decimal
         self.indicators = indicators
         self.update()
