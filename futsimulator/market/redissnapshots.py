@@ -5,14 +5,17 @@ from futsimulator.interfaces.redislist import RedisList
 from futsimulator.market.snapshots import MarketSnapshot
 from futsimulator.positions.position import SideOrder
 import math
+import warnings
 import pdb
 
 class TBBOSnapshot(MarketSnapshot):
 
     def __init__(self, host, port, list_name: str = None,
                  decimal: int = 1, indicators = {}, idx_start: int = -1,
-                 max_idx: int|float = math.inf, idx_date_day = None,
-                 start_time: datetime = None, end_time: datetime = None):
+                 max_idx: int|float = math.inf, idx_date_day = None, idx_half = None,
+                 start_time: datetime = None, end_time: datetime = None,
+                 start_time_preload: datetime = None
+                 ):
         """
         Reads a list from redis containing price data having a 
         databento format and reformat its information as
@@ -21,20 +24,34 @@ class TBBOSnapshot(MarketSnapshot):
         end_time, in addition, list_name, idx_start and max_idx will be overrided.
         """
         if idx_date_day:
-            idx_start, max_idx, list_name, _ = idx_date_day.get_indexes(start_time, end_time)
+            if start_time_preload:
+                idx_start, max_idx, list_name, _ = idx_date_day.get_indexes(start_time_preload, end_time)
+                idx_half, _,_,_ = idx_date_day.get_indexes(start_time, end_time)
+            else:
+                idx_start, max_idx, list_name, _ = idx_date_day.get_indexes(start_time, end_time)
         self.rl = RedisList(host, port, list_name, idx = idx_start, max_idx = max_idx)
         self.decimal = decimal
         self.indicators = indicators
         self.update()
+
+
+        if idx_half:
+            while self.idx <= idx_half:
+                self.update()
 
     def update(self):
         """
         Generates the attributes by by reading the price information from
         redis. 
         """
-        self.snap = TBBO(self.rl.read(), self.decimal)
-        self.idx = self.rl.idx
-
+        try:
+            self.snap = TBBO(self.rl.read(), self.decimal)
+            self.idx = self.rl.idx
+        except Exception:
+            warnings.warn(
+                f"""Redis list returned none at index {self.idx},"""
+                """ possibly because its finished""")
+            return
         """
         Updates all the indicators that were integrated into the snapshot
         instance.

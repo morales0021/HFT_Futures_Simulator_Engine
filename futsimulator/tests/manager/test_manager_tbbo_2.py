@@ -5,7 +5,6 @@ from futsimulator.interfaces.redisindex import IndexDateDay
 from datetime import datetime
 import pytz
 import pprint
-import pdb
 
 host = '192.168.1.48'
 port = 6379
