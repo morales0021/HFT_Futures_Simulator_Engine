@@ -1,17 +1,18 @@
 import redis
 import pdb
 import json
+from futsimulator.interfaces.redisinjectors import InjectZadd
 
-class InjectZadd:
+# class InjectZadd:
 
-    def __init__(self, host, port):
+#     def __init__(self, host, port):
 
-        self.r = redis.Redis(host = host, port = port)
-        self.r.ping()
+#         self.r = redis.Redis(host = host, port = port)
+#         self.r.ping()
         
-    def inject(self, lst_name, data):
+#     def inject(self, lst_name, data):
         
-        self.r.zadd(lst_name, data)
+#         self.r.zadd(lst_name, data)
 
 host_redis = '192.168.1.48'
 port_redis = 6379
