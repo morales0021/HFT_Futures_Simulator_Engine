@@ -10,19 +10,20 @@ OPP_POS = {SideOrder.buy:SideOrder.sell, SideOrder.sell:SideOrder.buy}
 class PositionManager():
 
     def __init__(
-        self, snapshot, max_b_size, max_s_size,
-        commission_cfg
+        self, snapshot, max_size,
+        commission_cfg, indicators = {}
         ):
 
         self.open_pos = deque()
         self.limit_ords = deque()
         self.stop_ords = deque()
         self.cl_pos = defaultdict(list)
-        self.max_b_size = max_b_size
-        self.max_s_size = max_s_size
+        self.max_size = max_size
         self.com_cfg = commission_cfg
         self.snapshot = snapshot
         self.id_counter = 1
+        self.indicators = indicators
+        self.update()
 
     def update(self):
         """
@@ -45,6 +46,9 @@ class PositionManager():
                 open_pos_.append(pos)
 
         self.open_pos = open_pos_
+        if self.indicators:
+            for key, ind in self.indicators.items():
+                ind.update(self)
 
     def delete_ls_order(self, id_order):
         """
@@ -201,6 +205,23 @@ class PositionManager():
             self, side: str, size: float,
             tp: float = None, sl: float = None
         ) -> None:
+
+        """
+        First filter the orders that are more than allowed in 
+        the configuration
+        """
+        info = self.get_infos()
+
+        if side == None:
+            if size > self.max_size:
+                return
+        elif side == info['open_orders']['side']:
+            if info['open_orders']['total_size'] + size > self.max_size:
+                return
+        else:
+            if size - info['open_orders']['total_size'] > self.max_size:
+                return
+
         """
         Send a market order
         """
