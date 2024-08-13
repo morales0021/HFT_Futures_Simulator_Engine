@@ -29,9 +29,12 @@ class TBBOSnapshot(MarketSnapshot):
                 idx_half, _,_,_ = idx_date_day.get_indexes(start_time, end_time)
             else:
                 idx_start, max_idx, list_name, _ = idx_date_day.get_indexes(start_time, end_time)
+
         self.rl = RedisList(host, port, list_name, idx = idx_start, max_idx = max_idx)
         self.decimal = decimal
         self.indicators = indicators
+        self.init_price = None
+        self.finished = False
         self.update()
 
 
@@ -45,12 +48,18 @@ class TBBOSnapshot(MarketSnapshot):
         redis. 
         """
         try:
+            # pdb.set_trace()
             self.snap = TBBO(self.rl.read(), self.decimal)
             self.idx = self.rl.idx
+
+            if not self.init_price:
+                self.init_price = self.snap.price
+
         except Exception:
             warnings.warn(
                 f"""Redis list returned none at index {self.idx},"""
                 """ possibly because its finished""")
+            self.finished = True
             return
         """
         Updates all the indicators that were integrated into the snapshot
