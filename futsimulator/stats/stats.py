@@ -27,6 +27,8 @@ class statPos():
         self.takeprofit = []
         # stoploss
         self.stoploss = []
+        # opened price
+        self.opened = []
 
 class statsPositions():
     
@@ -64,6 +66,12 @@ class statsPositions():
             # add average delta time
             b_s.delta_t += pos.delta_t*pos.size
 
+            b_s.opened.append({
+                "id_order": pos.id_order,
+                "open_price": pos.o_price,
+                "size": pos.size
+            })
+
             if pos.tp:
                 b_s.takeprofit.append({
                     "id_order": pos.id_order,
@@ -79,7 +87,7 @@ class statsPositions():
         # compute average delta time
         b_s.delta_t /= b_s.total_size if b_s.total_size else 1.0
 
-        # comput average open price
+        # compute average open price
         b_s.av_o_price /= b_s.total_size if b_s.total_size else 1.0
 
         return b_s
