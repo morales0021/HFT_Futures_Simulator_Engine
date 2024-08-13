@@ -14,7 +14,7 @@ class VolumeProfile:
 
         if not self.ladder:
             self.ladder = PriceLadder(
-                snapshot.price, self.size_up, self.size_down,
+                snapshot.init_price, self.size_up, self.size_down,
                 self.tick_unit, init_val=0
                 )
 
