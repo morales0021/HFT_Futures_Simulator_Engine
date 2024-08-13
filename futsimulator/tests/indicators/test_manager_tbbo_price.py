@@ -14,7 +14,7 @@ port = 6379
 list = 'UB_20240331'
 decimal = 1e9
 current_price = CurrentPrice(size_up = 10, size_down=10,
-                       tick_unit = 1/32, type = 'A')
+                       tick_unit = 1/32)
 
 indicators = {
     'current_price': current_price
