@@ -16,11 +16,10 @@ snapshot = MarketSnapshot(
     idx, symbol, bid_arr, ask_arr, time_arr, indicators_arr
     )
 
-max_b_size = 100
-max_s_size = 100
+max_size = 100
 commission_cfg = {}
 
-ps = PositionManager(snapshot, max_b_size, max_s_size, commission_cfg)
+ps = PositionManager(snapshot, max_size, commission_cfg)
 side = SideOrder.buy
 size = 5
 tp = 45

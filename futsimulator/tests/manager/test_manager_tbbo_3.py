@@ -21,7 +21,7 @@ idx_date_day = IndexDateDay(
 snapshot = TBBOSnapshot(host, port, decimal = decimal, idx_date_day= idx_date_day,
                         start_time = start_time, end_time = end_time )
 
-max_size = 100
+max_size = 2
 commission_cfg = {}
 
 ps = PositionManager(snapshot, max_size, commission_cfg)
@@ -30,37 +30,18 @@ snapshot.update()
 ps.update()
 
 side = SideOrder.sell
-size = 10
+size = 2
 ps.send_market_order(side, size)
 print("Total opened orders")
 result = ps.get_infos()
 pprint.pprint(result)
 print(snapshot)
 
-price = 128.71875
-side = SideOrder.sell
-
-
-ps.send_limit_order(price, side, size)
-result = ps.get_infos()
-pprint.pprint(result)
-print('\n')
-print(snapshot)
-
-for k in range(50):
-    snapshot.update()
-    ps.update()
-
-result = ps.get_infos()
-pprint.pprint(result)
-print('\n')
-print(snapshot)
 
 side = SideOrder.buy
-size = 20
+size = 4
 ps.send_market_order(side, size)
-
+print("Total opened orders")
 result = ps.get_infos()
 pprint.pprint(result)
-print('\n')
 print(snapshot)

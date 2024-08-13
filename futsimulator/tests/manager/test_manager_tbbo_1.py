@@ -9,11 +9,10 @@ list = 'UB_20240331'
 decimal = 1e9
 snapshot = TBBOSnapshot(host, port, list, decimal)
 
-max_b_size = 100
-max_s_size = 100
+max_size = 100
 commission_cfg = {}
 
-ps = PositionManager(snapshot, max_b_size, max_s_size, commission_cfg)
+ps = PositionManager(snapshot, max_size, commission_cfg)
 
 snapshot.update()
 ps.update()
