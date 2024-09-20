@@ -23,12 +23,11 @@ idx_date_day = IndexDateDay(
 snapshot = TBBOSnapshot(host, port, decimal = decimal, idx_date_day= idx_date_day,
                         start_time = start_time, end_time = end_time )
 
-max_b_size = 100
-max_s_size = 100
+max_size = 100
 commission_cfg = {}
 positions = CurrentPositions(10,10,1/32)
 indicators = {"positions": positions}
-ps = PositionManager(snapshot, max_b_size, max_s_size, commission_cfg, indicators)
+ps = PositionManager(snapshot, max_size, commission_cfg, indicators)
 
 snapshot.update()
 ps.update()

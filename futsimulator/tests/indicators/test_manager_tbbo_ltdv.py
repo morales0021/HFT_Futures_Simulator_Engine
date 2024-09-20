@@ -29,6 +29,4 @@ for k in range(500):
     snapshot.update()
 print(snapshot.indicators['bid_sold'])
 print(snapshot.indicators['ask_bought'])
-pdb.set_trace()
-
 print(snapshot.indicators['bid_sold'].ladder.data)
