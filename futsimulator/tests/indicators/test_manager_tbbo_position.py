@@ -8,6 +8,17 @@ from datetime import datetime
 import pytz
 import pprint
 
+"""
+CURRENT POSITIONS INDICATOR
+This test checks the CurrentPositions class.
+The CurrentPositions class is a class that keeps track of the current
+positions of the user. It is used as an indicator by the PositionManager class to
+keep track of the current positions of the user.
+
+In this tests, we also use the IndexDateDay class to start the snapshot
+at a specific time.
+"""
+
 host = '192.168.1.48'
 port = 6379
 decimal = 1e9
@@ -16,12 +27,11 @@ start_time = datetime(year=2024, month=3, day=31, hour = 22, minute = 0, tzinfo 
 end_time = datetime(year=2024, month=3, day=31, hour = 23, minute=1, tzinfo = pytz.utc)
 
 idx_date_day = IndexDateDay(
-    prefix = 'UB', suffix = 'zadd',
-    host = host, port = port
+    prefix = 'UB', suffix = 'zadd', host = host, port = port
     )
 
 snapshot = TBBOSnapshot(host, port, decimal = decimal, idx_date_day= idx_date_day,
-                        start_time = start_time, end_time = end_time )
+                        start_time = start_time, end_time = end_time)
 
 max_size = 100
 commission_cfg = {}

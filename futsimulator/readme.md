@@ -17,6 +17,11 @@ The position manager is initialised as follows and should include a market snaps
 ps = PositionManager(ms, max_b_size, max_s_size, commission_cfg)
 ```
 
+## Snapshots
+
+There are different type of snapshots : 
+- Classical snapshot. This snapshot is initialized using numpy data provided to the snapshot class
+- Redis snapshot. This snapshot interfaces with a Redis server in order to pull the market data.
 
 ## Position Manager methods
 
@@ -181,3 +186,12 @@ ps.delete_ls_order(id_order)
 ```
 
 This method deletes any pending stop/limit order.
+
+## Indicators
+
+### Last Traded Volume Indicator
+Computes the last traded volume for the last N seconds for X levels above and X levels below the current price.
+To access this method you can import it with :
+```
+from futsimulator.indicators.traded_vol import TradedVolume
+```
