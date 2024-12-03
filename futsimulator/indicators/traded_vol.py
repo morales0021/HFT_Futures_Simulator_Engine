@@ -8,6 +8,18 @@ class TradedVolume:
         """
         Defines a column of traded volume in the last 10 seconds
         interval
+        This indicator only work with TBBOSnapshot or any other
+        class that contains the same attributes:
+        - snapshot.ask
+        - snapshot.bid
+        - snapshot.init_price
+        - snapshot.size
+        - snapshot.side
+        - snapshot.time
+        
+        The MarketSnapshot class is not compatible with this indicator
+        because it does not contain the attribute:
+        - snapshot.init_price       
         """
 
         self.size_up = size_up

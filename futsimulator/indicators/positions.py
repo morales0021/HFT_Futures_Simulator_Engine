@@ -6,7 +6,16 @@ class CurrentPositions:
 
     def __init__(self, size_up, size_down, tick_unit):
         """
-        Defines a the position of bid and ask
+        Defines a the position of bid and ask.
+        This indicator only work with TBBOSnapshot or any other
+        class that contains the same attributes:
+        - snapshot.ask
+        - snapshot.bid
+        - snapshot.init_price
+        
+        The MarketSnapshot class is not compatible with this indicator
+        because it does not contain the attribute:
+        - snapshot.init_price
         """
 
         self.size_up = size_up

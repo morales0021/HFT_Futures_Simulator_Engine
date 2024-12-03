@@ -5,9 +5,11 @@ class MarketSnapshot():
     def __init__(self, idx, symbol, bid_arr, ask_arr, time_arr, 
                  indicators_arr):
         """
-        Generates a market snapshot using the arrays
-        of the historical data and the idx provided
+        Generates a market snapshot using the arrays of the historical data and the idx provided
         of the current step.
+        The more important attributes in the MarketSnapshot are:
+        - bid: the bid price of the current step
+        - ask: the ask price of the current step
         """
         assert(type(idx)==int)
 
