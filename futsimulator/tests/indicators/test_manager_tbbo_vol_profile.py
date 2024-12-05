@@ -3,6 +3,12 @@ from futsimulator.indicators.profile import VolumeProfile
 import pdb
 import numpy as np
 
+"""
+VOLUME PROFILE INDICATOR
+This test is to check the TBBOSnapshot class
+when including the VolumeProfile class (indicator).
+"""
+
 host = '192.168.1.48'
 port = 6379
 list = 'UB_20240331'

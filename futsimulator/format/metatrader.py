@@ -5,7 +5,7 @@ from futsimulator.interfaces.redislist import RedisList
 
 class MT5:
 
-    def __init__(self, data: bytes | str, decimal: float):
+    def __init__(self, data: bytes | str, symbol: str = None) -> None:
 
         if isinstance(data, bytes):
             data = data.decode('utf-8')
@@ -15,20 +15,15 @@ class MT5:
         elif isinstance(data, dict):
             dict_d = data
 
-        self.decimal = decimal    
         self._load_attr(dict_d)
-
+        self.symbol = symbol
 
     def _load_attr(self, dict_d: dict) -> None:
-        #TODO: Write the right attributes for MT5
-        # self.ts = int(dict_d['ts_recv'])/1e9
-        # self.time = self.ts
-        # self.datetime = datetime.utcfromtimestamp(self.ts)
-        # self.side = dict_d["side"]
-        # self.price = float(dict_d["price"]) / self.decimal
-        # self.size = dict_d["size"]
-        # self.ask = float(dict_d["levels"][0]["ask_px"]) / self.decimal
-        # self.bid = float(dict_d["levels"][0]["bid_px"]) / self.decimal
-        # self.ask_sz_0 = dict_d["levels"][0]["ask_sz"]
-        # self.bid_sz_0 = dict_d["levels"][0]["bid_sz"]
-        # self.symbol = dict_d['symbol']
+        self.ts = int(dict_d['datetime'])/1e3
+        self.time = self.ts
+        self.datetime = datetime.utcfromtimestamp(self.ts)
+        self.side = dict_d["side"]
+        self.price = float(dict_d["close"])
+        self.size = dict_d["volume"]
+        self.ask = float(dict_d["ask"])
+        self.bid = float(dict_d["bid"])

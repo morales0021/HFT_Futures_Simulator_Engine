@@ -11,7 +11,7 @@ import pdb
 class MT5Snapshot(MarketSnapshot):
 
     def __init__(self, host, port, list_name: str = None,
-                 decimal: int = 1, indicators = {}, idx_start: int = -1,
+                 symbol: str = '', indicators = {}, idx_start: int = -1,
                  max_idx: int|float = math.inf, idx_date_day = None, idx_half = None,
                  start_time: datetime = None, end_time: datetime = None,
                  start_time_preload: datetime = None
@@ -31,12 +31,11 @@ class MT5Snapshot(MarketSnapshot):
                 idx_start, max_idx, list_name, _ = idx_date_day.get_indexes(start_time, end_time)
 
         self.rl = RedisList(host, port, list_name, idx = idx_start, max_idx = max_idx)
-        self.decimal = decimal
         self.indicators = indicators
         self.init_price = None
         self.finished = False
+        self.symbol = symbol
         self.update()
-
 
         if idx_half:
             while self.idx <= idx_half:
@@ -48,8 +47,7 @@ class MT5Snapshot(MarketSnapshot):
         redis. 
         """
         try:
-            # pdb.set_trace()
-            self.snap = MT5(self.rl.read(), self.decimal)
+            self.snap = MT5(self.rl.read(), self.symbol)
             self.idx = self.rl.idx
 
             if not self.init_price:
@@ -81,39 +79,15 @@ class MT5Snapshot(MarketSnapshot):
         Updates the queue of a limit order by following a mecanic
         as precised by the Sierra Chart Software.
         """
-        #pdb.set_trace()
-        if not limit_order.queue:
-            if limit_order.side == SideOrder.buy and self.bid == limit_order.price:
-                limit_order.queue = self.bid_sz_0 + limit_order.size
-            elif limit_order.side == SideOrder.sell and self.ask == limit_order.price:
-                limit_order.queue = self.ask_sz_0 + limit_order.size
-            else:
-                return
-        else:
-            if limit_order.side == SideOrder.buy and self.bid == limit_order.price:
-                if self.side == 'A' and self.price == self.bid:  # A is Ask 
-                    limit_order.queue -= self.size
-                if limit_order.queue > self.bid_sz_0 + limit_order.size:
-                    limit_order.queue = self.bid_sz_0 + limit_order.size
-            
-            if limit_order.side == SideOrder.sell and self.ask == limit_order.price:
-                if self.side == 'B' and self.price == self.ask:
-                    limit_order.queue -= self.size
-                if limit_order.queue > self.ask_sz_0 + limit_order.size:
-                    limit_order.queue = self.ask_sz_0 + limit_order.size
+        raise NotImplemented("Method not supported for MT5Snapshot")
     
     def exec_order_by_queue(self, limit_order):
         """
         Checks if a limit order should be executed or not based on a 
         queuing system.
         """
-        #pdb.set_trace()
-        self.update_queue(limit_order)
-        if limit_order.queue and limit_order.queue < 0:
-            return True
-        else:
-            return False
-
+        raise NotImplemented("Method not supported for MT5Snapshot")
+    
     def __str__(self):
 
         cls_info = f"""
@@ -124,8 +98,6 @@ class MT5Snapshot(MarketSnapshot):
         side: {self.side},
         size: {self.size},
         last: {self.price}
-        bid_sz_0: {self.bid_sz_0},
-        ask_sz_0: {self.ask_sz_0},
         symbol: {self.symbol},
         idx: {self.idx}
         """
