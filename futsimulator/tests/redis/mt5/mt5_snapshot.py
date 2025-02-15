@@ -11,8 +11,6 @@ print(tb.bid)
 print(tb.ts)
 print(tb.datetime)
 
-pdb.set_trace()
-
 print("\n")
 tb.update()
 print(tb.ask)

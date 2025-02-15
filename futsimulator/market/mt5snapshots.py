@@ -11,7 +11,7 @@ import pdb
 class MT5Snapshot(MarketSnapshot):
 
     def __init__(self, host, port, list_name: str = None,
-                 symbol: str = '', indicators = {}, idx_start: int = -1,
+                 symbol: str = '', idx_start: int = -1,
                  max_idx: int|float = math.inf, idx_date_day = None, idx_half = None,
                  start_time: datetime = None, end_time: datetime = None,
                  start_time_preload: datetime = None
@@ -31,7 +31,6 @@ class MT5Snapshot(MarketSnapshot):
                 idx_start, max_idx, list_name, _ = idx_date_day.get_indexes(start_time, end_time)
 
         self.rl = RedisList(host, port, list_name, idx = idx_start, max_idx = max_idx)
-        self.indicators = indicators
         self.init_price = None
         self.finished = False
         self.symbol = symbol
@@ -59,20 +58,13 @@ class MT5Snapshot(MarketSnapshot):
                 """ possibly because its finished""")
             self.finished = True
             return
-        """
-        Updates all the indicators that were integrated into the snapshot
-        instance.
-        """
-        if self.indicators:
-            for key, ind in self.indicators.items():
-                ind.update(self)
 
     def __getattr__(self, attr):
 
         try:
             return getattr(self.snap, attr)
         except AttributeError as e:
-            raise AttributeError("Attribute not found in TBBO Class")
+            raise AttributeError("Attribute not found in MT5Snapshot")
 
     def update_queue(self, limit_order):
         """

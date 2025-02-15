@@ -1,7 +1,6 @@
 import pytz
 from datetime import datetime
 import pdb
-from futsimulator.market.redissnapshots import TBBOSnapshot
 from futsimulator.interfaces.redisindex import IndexDateDay
 
 # info_dat = (

@@ -22,7 +22,6 @@ class IndexDateDay:
 
         start = start_time.timestamp()*self.decimal_time
         end = end_time.timestamp()*self.decimal_time
-        print(start, end)
         s_idxs = self.r.zrangebyscore(
             name_idx, min = start, max = end,
             start = 0, num = 2)
