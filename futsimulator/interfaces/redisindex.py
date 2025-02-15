@@ -3,10 +3,11 @@ from datetime import datetime
 
 class IndexDateDay:
 
-    def __init__(self, prefix, suffix, host, port):
+    def __init__(self, prefix, suffix, host, port, decimal_time = 1e9):
 
         self.prefix = prefix
         self.suffix = suffix
+        self.decimal_time = decimal_time
         self.r = redis.Redis(host = host, port = port)
         self.r.ping()
 
@@ -19,9 +20,8 @@ class IndexDateDay:
         name_list = self.prefix + '_' + start_time.strftime("%Y%m%d") 
         name_idx = name_list + '_' + self.suffix
 
-        start = start_time.timestamp()*1e9
-        end = end_time.timestamp()*1e9
-
+        start = start_time.timestamp()*self.decimal_time
+        end = end_time.timestamp()*self.decimal_time
         s_idxs = self.r.zrangebyscore(
             name_idx, min = start, max = end,
             start = 0, num = 2)
