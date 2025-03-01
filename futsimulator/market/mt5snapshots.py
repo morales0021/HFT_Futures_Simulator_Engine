@@ -32,13 +32,13 @@ class MT5Snapshot(MarketSnapshot):
         self.init_price = None
         self.finished = False
         self.symbol = symbol
-        self.update()
+        self.step()
 
         if idx_half:
             while self.idx <= idx_half:
-                self.update()
+                self.step()
 
-    def update(self):
+    def step(self):
         """
         Generates the attributes by by reading the price information from
         redis. 

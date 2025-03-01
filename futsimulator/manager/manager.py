@@ -22,21 +22,36 @@ class PositionManager():
         self.com_cfg = commission_cfg
         self.snapshot = snapshot
         self.id_counter = 1
-        self.indicators = indicators
         self.cpnl = 0
-        self.update()
+        self._check_orders_pos()
 
-    def update(self):
+    def step(self):
+        """
+        Updates the snapshot and the orders
+        """
+        self.snapshot.step()
+        self._check_orders_pos()
+
+    def _check_orders_pos(self):
         """
         Update all the orders by verifying if any stop loss
         or take profit has been reached. It that is the case,
         then an open position will be moved to a closed position.
+        This method is called when:
+        - modify a market order
+        - modify a limit order
+        - modify a stop order
+        - send a market order
         """
         # Check if any limit orders needs to be executed
+        # Transforms a limit order into a market order
         self.check_limit_ords()
         # Check if any stop order needs to be executed
+        # Transforms a stop order into a market order
         self.check_stop_ords()
 
+        # Update the open positions
+        # Check if any take profit or stop loss has been reached
         open_pos_ = deque()
         while self.open_pos:
             pos = self.open_pos.popleft()
@@ -48,15 +63,16 @@ class PositionManager():
                 open_pos_.append(pos)
 
         self.open_pos = open_pos_
-        if self.indicators:
-            for key, ind in self.indicators.items():
-                ind.update(self)
 
     def delete_ls_order(self, id_order):
         """
         Removes a stop or limit order from the list of 
-        orders that are in the queue
+        orders that are in the queue.
+        We don't check orders and positions because
+        any order sent to the market (limit, stop or market)
+        has previously passed by the check orders and positions.
         """
+
         limit_ords_ = deque()
         while self.limit_ords:
             order = self.limit_ords.popleft()
@@ -90,7 +106,7 @@ class PositionManager():
             open_pos_.append(order)
 
         self.open_pos = open_pos_
-        self.update()
+        self._check_orders_pos()
 
     def modify_ls_order(
             self, id_order, price = None,
@@ -127,7 +143,7 @@ class PositionManager():
                     order.sl = sl
             stop_ords_.append(order)
         self.stop_ords = stop_ords_
-        self.update()
+        self._check_orders_pos()
 
     def check_limit_ords(self):
         """
@@ -193,7 +209,7 @@ class PositionManager():
         lo = LimitStopOrder(price, side, size, tp, sl, self.id_counter)
         self.limit_ords.append(lo)
         self.id_counter += 1
-        self.update()
+        self._check_orders_pos()
 
     def send_stop_order(self, price, side, size, tp = None, sl = None):
         """
@@ -202,7 +218,7 @@ class PositionManager():
         so = LimitStopOrder(price, side, size, tp, sl, self.id_counter)
         self.stop_ords.append(so)
         self.id_counter += 1
-        self.update()
+        self._check_orders_pos()
 
     def send_market_order(
             self, side: str, size: float,
@@ -228,9 +244,9 @@ class PositionManager():
         """
         Send a market order
         """
-        self.update()
+        self._check_orders_pos()
         if size <= 0:
-            return
+            raise ValueError("Size of the order should be positive")
 
         open_pos_ = deque()
 
@@ -311,7 +327,7 @@ class PositionManager():
             self.id_counter +=1
 
         self.open_pos = open_pos_
-        self.update()
+        self._check_orders_pos()
         
 
     def liquidate(self) -> None:

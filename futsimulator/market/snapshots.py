@@ -30,7 +30,7 @@ class MarketSnapshot():
                    "not bigger than lenght of attributes : ".format(e))
             raise Exception(msg)
 
-    def update(self):
+    def step(self):
         """
         Updates the index of the market snaphshot by one
         unit
