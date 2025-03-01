@@ -1,9 +1,10 @@
+import pdb
 import redis
 from datetime import datetime
 
 class IndexDateDay:
 
-    def __init__(self, prefix, suffix, host, port, decimal_time = 1e9):
+    def __init__(self, prefix, suffix, host, port, decimal_time):
 
         self.prefix = prefix
         self.suffix = suffix

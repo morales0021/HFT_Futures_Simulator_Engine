@@ -10,9 +10,7 @@ import pdb
 
 class MT5Snapshot(MarketSnapshot):
 
-    def __init__(self, host, port, list_name: str = None,
-                 symbol: str = '', idx_start: int = -1,
-                 max_idx: int|float = math.inf, idx_date_day = None, idx_half = None,
+    def __init__(self, host, port, symbol: str = '', idx_date_day = None,
                  start_time: datetime = None, end_time: datetime = None,
                  start_time_preload: datetime = None
                  ):
@@ -21,7 +19,7 @@ class MT5Snapshot(MarketSnapshot):
         MT5 format and reformat its information as
         attributes.
         Note that if idx_date_day is provided, then is required start_time and
-        end_time, in addition, list_name, idx_start and max_idx will be overrided.
+        end_time.
         """
         if idx_date_day:
             if start_time_preload:
@@ -73,12 +71,6 @@ class MT5Snapshot(MarketSnapshot):
         """
         raise NotImplemented("Method not supported for MT5Snapshot")
     
-    def exec_order_by_queue(self, limit_order):
-        """
-        Checks if a limit order should be executed or not based on a 
-        queuing system.
-        """
-        raise NotImplemented("Method not supported for MT5Snapshot")
     
     def __str__(self):
 

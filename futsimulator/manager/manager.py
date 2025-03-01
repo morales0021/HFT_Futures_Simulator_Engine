@@ -23,6 +23,7 @@ class PositionManager():
         self.snapshot = snapshot
         self.id_counter = 1
         self.indicators = indicators
+        self.cpnl = 0
         self.update()
 
     def update(self):
@@ -42,6 +43,7 @@ class PositionManager():
             pos.update_tick()
             if pos.status == StatusOrder.closed:
                 self.cl_pos[pos.id_order].append(pos)
+                self.cpnl += pos.cl_pnl
             else:
                 open_pos_.append(pos)
 
@@ -159,6 +161,8 @@ class PositionManager():
                 
                 else:
                     limit_ords_.append(lo)
+            else:
+                raise ValueError("Side order not recognized")
         
         self.limit_ords = limit_ords_
 
@@ -186,7 +190,6 @@ class PositionManager():
         """
         Sends a limit order
         """
-        
         lo = LimitStopOrder(price, side, size, tp, sl, self.id_counter)
         self.limit_ords.append(lo)
         self.id_counter += 1
@@ -266,6 +269,7 @@ class PositionManager():
                     pos.size = size
                     pos.close_order()
                     self.cl_pos[pos.id_order].append(pos)
+                    self.cpnl += pos.cl_pnl
 
                     if remain:
                         pos = Position(
@@ -289,7 +293,7 @@ class PositionManager():
                     """
                     pos.close_order()
                     self.cl_pos[pos.id_order].append(pos)
-
+                    self.cpnl += pos.cl_pnl
                     """
                     Update size to be filled for next position to be 
                     analysed
@@ -341,7 +345,8 @@ class PositionManager():
         info_limit_stops = self._trads_info_limit_stop()
         infos = {
             "open_orders":vars(info_open),
-            "closed_orders": info_close
+            "closed_orders": info_close,
+            "cl_pnl": self.cpnl
             }
         infos.update(info_limit_stops)
         
