@@ -10,30 +10,33 @@ import pdb
 
 class MT5Snapshot(MarketSnapshot):
 
-    def __init__(self, host, port, symbol: str, mt5_reader,
-                 start_time: datetime, end_time: datetime
+    def __init__(self, host, port, symbol: str = '', idx_date_day = None,
+                 start_time: datetime = None, end_time: datetime = None,
+                 start_time_preload: datetime = None
                  ):
         """
+        Reads a list from redis containing price data having a 
+        MT5 format and reformat its information as
+        attributes.
+        Note that if idx_date_day is provided, then is required start_time and
+        end_time.
         """
-        pdb.set_trace()
-        idx_start, idx_end, list_name, lst_idx_name = mt5_reader.bind_datalist_by_datetime(
-            start_time, end_time
-        )
+        if idx_date_day:
+            if start_time_preload:
+                idx_start, max_idx, list_name, _ = idx_date_day.get_indexes(start_time_preload, end_time)
+                idx_half, _,_,_ = idx_date_day.get_indexes(start_time, end_time)
+            else:
+                idx_start, max_idx, list_name, _ = idx_date_day.get_indexes(start_time, end_time)
 
-
-
-        self.rl = RedisList(
-            host,
-            port,
-            list_name,
-            idx = idx_start,
-            max_idx = idx_end
-        )
-
+        self.rl = RedisList(host, port, list_name, idx = idx_start, max_idx = max_idx)
         self.init_price = None
         self.finished = False
         self.symbol = symbol
         self.step()
+
+        if idx_half:
+            while self.idx <= idx_half:
+                self.step()
 
     def step(self):
         """

@@ -1,5 +1,6 @@
 
 import os
+import pdb
 import pandas as pd
 from tqdm import tqdm
 import redis
@@ -13,15 +14,11 @@ class MT5RedisReader:
 
     def __init__(
             self,
-            path: str,
-            files: list,
             host_redis: str,
             port_redis: int,
             identifier: str = None
             ):
         
-        self.path = path
-        self.files = files        
         self.host_redis = host_redis
         self.port_redis = port_redis
         self.identifier = identifier
@@ -30,11 +27,16 @@ class MT5RedisReader:
         self.r.ping()
 
 
-    def load_data(self, agregate = True):
+    def load_data(
+            self,
+            path: str,
+            files: list,
+            agregate = True
+            ):
         
-        for file in self.files:
+        for file in files:
             try:
-                df = load_data(os.path.join(self.path, file))
+                df = load_data(os.path.join(path, file))
                 if agregate:
                     df = agregate_mt5(df)
                 self.inject_data(df)
@@ -45,8 +47,8 @@ class MT5RedisReader:
         """
         Set list name for redis.
         """
-        list_name_redis = f'{self.identifier}_{dt["year"]}{dt["month"]}{dt["day"]}_data'
-        list_name_idx = f'{self.identifier}_{dt["year"]}{dt["month"]}{dt["day"]}_idx'
+        list_name_redis = f'{self.identifier}_{dt["year"]}{dt["month"]:02}{dt["day"]:02}_data'
+        list_name_idx = f'{self.identifier}_{dt["year"]}{dt["month"]:02}{dt["day"]:02}_idx'
         return list_name_redis, list_name_idx
 
     def inject_data(self, df):
@@ -93,9 +95,18 @@ class MT5RedisReader:
         Bind the data list with the indexes.
         """
         lst_name, lst_idx_name = self.get_list_name(
-            {"year":start_time.year, "month":start_time.month, "day":start_time.day}
+            {"year":start_time.year,
+             "month":start_time.month,
+             "day":start_time.day
+             }
         )
 
+        if not self.r.exists(lst_name):
+            raise Exception(f"List {lst_name} does not exist")
+
+        if not self.r.exists(lst_idx_name):
+            raise Exception(f"List {lst_idx_name} does not exist")
+        
         idx_start,  idx_end, lst_idx_name = self._locate_time_index(
             lst_idx_name, start_time, end_time
         )
