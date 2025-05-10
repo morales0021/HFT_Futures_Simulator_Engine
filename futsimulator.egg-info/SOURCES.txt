@@ -1,0 +1,7 @@
+setup.py
+futsimulator/__init__.py
+futsimulator.egg-info/PKG-INFO
+futsimulator.egg-info/SOURCES.txt
+futsimulator.egg-info/dependency_links.txt
+futsimulator.egg-info/requires.txt
+futsimulator.egg-info/top_level.txt
