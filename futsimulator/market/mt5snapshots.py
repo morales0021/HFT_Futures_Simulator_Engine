@@ -10,30 +10,38 @@ import pdb
 
 class MT5Snapshot(MarketSnapshot):
 
-    def __init__(self, host, port, symbol: str, mt5_reader,
-                 start_time: datetime, end_time: datetime
-                 ):
-        """
-        """
-        pdb.set_trace()
-        idx_start, idx_end, list_name, lst_idx_name = mt5_reader.bind_datalist_by_datetime(
-            start_time, end_time
-        )
-
-
-
-        self.rl = RedisList(
+    def __init__(
+            self,
             host,
             port,
-            list_name,
-            idx = idx_start,
-            max_idx = idx_end
-        )
+            symbol: str,
+            mt5_reader,
+            start_time: datetime,
+            end_time: datetime
+            ):
+        """
+        """
+        try:
+            idx_start, idx_end, list_name, lst_idx_name = mt5_reader.bind_datalist_by_datetime(
+                start_time, end_time
+            )
 
-        self.init_price = None
-        self.finished = False
-        self.symbol = symbol
-        self.step()
+            print(f"idx_start: {idx_start}, idx_end: {idx_end}, list_name: {list_name}")
+            self.list_name = list_name
+            self.rl = RedisList(
+                host,
+                port,
+                list_name,
+                idx = idx_start,
+                max_idx = idx_end
+            )
+
+            self.init_price = None
+            self.finished = False
+            self.symbol = symbol
+            self.step()
+        except Exception as e:
+            print(f"Exception with {start_time}, {end_time}")
 
     def step(self):
         """
@@ -41,13 +49,15 @@ class MT5Snapshot(MarketSnapshot):
         redis. 
         """
         try:
+
             self.snap = MT5(self.rl.read(), self.symbol)
             self.idx = self.rl.idx
 
             if not self.init_price:
                 self.init_price = self.snap.price
 
-        except Exception:
+        except Exception as e:
+            print("Exception with ", self.list_name)
             warnings.warn(
                 f"""Redis list returned none at index {self.idx},"""
                 """ possibly because its finished""")

@@ -19,6 +19,14 @@ mt5_reader = MT5RedisReader(
     identifier='EP'
 )
 
+mt5_reader.load_data(
+    path = '/home/mora/Documents/projects/dataseries/mt5/EP/',
+    files = [
+        "EP_202307010043_202307292042.csv",
+        "EP_202411010000_202411012059.csv",
+        "EP_202312150000_202312172359.csv",
+    ]
+)
 
 tb = MT5Snapshot(
     host_redis,
@@ -30,6 +38,8 @@ tb = MT5Snapshot(
     )
 
 
-pdb.set_trace()
+print(tb)
+
+tb.step()
 
 print(tb)

@@ -55,20 +55,36 @@ class MT5RedisReader:
         """
         Injects data into redis.
         """
-        dt = get_datetime_data(df)
-        list_name_redis, list_name_idx = self.get_list_name(dt)
-
-        self.datalist.append({
-            "list_name_redis":list_name_redis,
-            "list_name_idx":list_name_idx,
-            "datetime":dt
-        })
+        # dt = get_datetime_data(df)
+        # list_name_redis, list_name_idx = self.get_list_name(dt)
 
         r_inj = InjectStr2List(self.host_redis, self.port_redis)
         r_inj_idx = InjectZadd(self.host_redis, self.port_redis)
         data = df.to_dict(orient = 'records')
+        # pdb.set_trace()
 
-        for idx, element in tqdm(enumerate(data)):
+        day = None
+        list_name_idx = None
+        list_name_redis = None
+        idx = None
+
+        for _, element in tqdm(enumerate(data)):
+
+            if day != element['datetime'].day:
+                idx = 0
+                dt = {"year":element['datetime'].year,
+                      "month":element['datetime'].month,
+                      "day":element['datetime'].day
+                      }
+                
+                list_name_redis, list_name_idx = self.get_list_name(dt)
+                day = element['datetime'].day
+                
+                self.datalist.append({
+                    "list_name_redis":list_name_redis,
+                    "list_name_idx":list_name_idx,
+                    "datetime":dt
+                })
 
             element['datetime'] = element['datetime'].timestamp()*1000
 
@@ -86,8 +102,9 @@ class MT5RedisReader:
             score = int(element['datetime'])
             data = {idx:score}
             r_inj_idx.inject(list_name_idx,data)
+            idx += 1
 
-        print("Data injected for ", list_name_redis)
+        # print("Data injected for ", list_name_redis)
 
 
     def bind_datalist_by_datetime(self, start_time: datetime, end_time: datetime):
